@@ -42,7 +42,7 @@
             <let var="patch-version-valid" expression="$oscal-version-subparts[3] >= $fedramp-oscal-version-subparts[3]"/>
             <expect id="oscal-version-matches-fedramp-version" target="prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal']" test="$major-version-valid and $minor-version-valid and $patch-version-valid" level="WARNING">
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://docs.oasis-open.org/sarif/sarif/v2.1.0"/>                
-                <message>A FedRAMP document SHOULD have an OSCAL version that matches the minimally required version for FedRAMP packages, {$fedramp-version-oscal-part}, not {../oscal-version}. DEBUG: {$major-version-valid} {$minor-version-valid} {$patch-version-valid}</message>
+                <message>A FedRAMP document SHOULD have an OSCAL version that matches the minimally required version for FedRAMP packages, {$fedramp-version-oscal-part}, not {../oscal-version}.</message>
             </expect>           
         </constraints>
     </context>
