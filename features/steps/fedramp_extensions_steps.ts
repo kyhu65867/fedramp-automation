@@ -1,4 +1,4 @@
-import { Given, Then, When, setDefaultTimeout } from "@cucumber/cucumber";
+import { BeforeAll, BeforeStep, Given, Then, When, setDefaultTimeout, world } from "@cucumber/cucumber";
 import { expect } from "chai";
 import {
   readFileSync,
@@ -9,12 +9,16 @@ import {
   existsSync,
 } from "fs";
 import { load } from "js-yaml";
-import { executeOscalCliCommand, validateFile, validateWithSarif } from "oscal";
-import { dirname, join,parse } from "path";
+import { executeOscalCliCommand, resolveProfile, resolveProfileDocument, validateDocument} from "oscal";
+import {checkServerStatus} from 'oscal/dist/server.js'
+import { dirname, join,parse, resolve } from "path";
 import { Exception, Log, Result } from "sarif";
 import { fileURLToPath } from "url";
 import { parseString } from "xml2js";
 import { promisify } from "util";
+import {formatSarifOutput} from 'oscal'
+
+let executor: 'oscal-cli'|'oscal-server' = process.env.OSCAL_EXECUTOR as 'oscal-cli'|'oscal-server' || 'oscal-cli'
 
 const parseXmlString = promisify(parseString);
 const DEFAULT_TIMEOUT = 60000;
@@ -23,7 +27,7 @@ setDefaultTimeout(DEFAULT_TIMEOUT);
 let currentTestCase: {
   name: string;
   description: string;
-  content: string;
+  content: string[];
   pipelines: [];
   expectations: [{ "constraint-id": string; result: string }];
 };
@@ -36,7 +40,10 @@ const validationCache = new Map<string, Log>();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
+const sarifDir = join(__dirname, "..", "..", "sarif");
+if (!existsSync(sarifDir)) {
+  mkdirSync(sarifDir, { recursive: true });
+}
 const featureFile = join(__dirname, "..", "fedramp_extensions.feature");
 let featureContent = readFileSync(featureFile, "utf8");
 
@@ -130,6 +137,15 @@ function getConstraintFiles() {
     .join("\n");
   return xmlFiles;
 }
+BeforeAll(async ()=>{
+  if(executor==='oscal-server'){
+    const isHealthy=await checkServerStatus()
+    if(!isHealthy){
+      console.warn("Server not healthy, switching to CLI")
+      executor='oscal-cli';
+    }
+  }  
+})
 
 Given("I have Metaschema extensions documents", function (dataTable) {
   const constraintDir = join(
@@ -179,17 +195,22 @@ async function processTestCase({ "test-case": testCase }: any) {
   console.log(`Description: ${testCase.description}`);
 
   // Load the content file
-  const contentPath = join(
-    __dirname,
-    "..",
-    "..",
-    "src",
-    "validations",
-    "constraints",
-    "content",
-    testCase.content
-  );
-  console.log(`Loaded content from: ${contentPath}`);
+  const contentFiles = Array.isArray(testCase.content) ? testCase.content : [testCase.content];
+
+  for (let i = 0; i < contentFiles.length; i++) {
+    const contentFile = contentFiles[i];
+    // Load the content file
+    const contentPath = join(
+      __dirname,
+      "..",
+      "..",
+      "src",
+      "validations",
+      "constraints",
+      "content",
+      contentFile
+    );
+    console.log(`Loaded content from: ${contentPath}`);
   const cacheKey = (typeof testCase.pipeline === 'undefined' ? "" : "resolved-") + parse(contentPath).name;
 
 
@@ -202,12 +223,12 @@ async function processTestCase({ "test-case": testCase }: any) {
   if (testCase.pipeline) {
     for (const step of testCase.pipeline) {
       if (step.action === "resolve-profile") {
-        await executeOscalCliCommand("resolve-profile", [
+        await resolveProfileDocument(
           contentPath,
           processedContentPath,
-          "--to=XML",
-          "--overwrite",
-        ]);
+          {
+            outputFormat:'xml'
+          },executor)
         console.log("Profile resolved");
       }
       // Add other pipeline steps as needed
@@ -225,15 +246,14 @@ async function processTestCase({ "test-case": testCase }: any) {
       console.log("Using cached validation result from "+cacheKey);
       sarifResponse = validationCache.get(cacheKey)!;
     }else{
-      let args = [];
+      let flags = [];
       if(currentTestCaseFileName.includes("FAIL")){
-        args.push("--disable-schema-validation")
+        flags.push("disable-schema")
       }
-    sarifResponse = await validateWithSarif([
-      processedContentPath,
-      ...args,
-      ...metaschemaDocuments.flatMap((x) => ["-c", x]),
-    ]);
+    const {isValid,log} = await validateDocument(resolve(processedContentPath),{quiet:true,
+      extensions:metaschemaDocuments.flatMap((x) => resolve(x)),
+      flags},executor)
+      sarifResponse=log;
     validationCache.set(cacheKey,sarifResponse);
   }
   if (typeof sarifResponse.runs[0].tool.driver.rules === "undefined") {
@@ -246,10 +266,7 @@ async function processTestCase({ "test-case": testCase }: any) {
     if (processedContentPath != contentPath) {
       unlinkSync(processedContentPath);
     }
-    const sarifDir = join(__dirname, "..", "..", "sarif");
-    if (!existsSync(sarifDir)) {
-      mkdirSync(sarifDir, { recursive: true });
-    }
+    
     writeFileSync(
       join(
         __dirname,
@@ -258,9 +275,17 @@ async function processTestCase({ "test-case": testCase }: any) {
       ),
       JSON.stringify(sarifResponse, null,"\t")
     );
-    return checkConstraints(sarifResponse, testCase.expectations);
-  } catch (e) {
-    return { status: "fail", errorMessage: e.toString() };
+    const result = await checkConstraints(sarifResponse, testCase.expectations);
+      if (result.status === "fail") {
+        return result;
+      }
+      if (i === contentFiles.length -1) {
+        return result;
+      }
+
+    } catch (e) {
+      return { status: "fail", errorMessage: e.toString() };
+    }
   }
 }
 
@@ -641,4 +666,50 @@ Then("I should have both FAIL and PASS tests for constraint ID {string}", functi
     constraintId,
     `Constraint ${constraintId} is not in the extracted constraints list`
   );
+});
+
+Then('I should verify that all constraints follow the style guide constraint', async function () {
+  const baseDir = join(__dirname, '..', '..');
+  const constraintDir = join(baseDir, 'src', 'validations', 'constraints');
+  const styleGuidePath = join(baseDir, 'src', 'validations', 'styleguides', 'fedramp-constraint-style.xml');
+
+  const constraint_files = readdirSync(constraintDir).filter((file) => file.startsWith('fedramp') && file.endsWith('xml') );
+  const errors = [];
+
+  function filterOutBrackets(input) {
+    return input.replace(/\[.*?\]/g, '');
+  }
+
+  for (const file_name of constraint_files) {
+    const filePath = join(constraintDir, file_name.trim());
+    try {
+      const {isValid,log} = await validateDocument(filePath,{flags:['disable-schema'],quiet:true,extensions:[styleGuidePath],module:"http://csrc.nist.gov/ns/oscal/metaschema/1.0"},executor)
+      writeFileSync(
+        join(
+          __dirname,
+          "../../sarif/",
+          file_name.split(".xml").join("").toString()+".sarif"
+        ),JSON.stringify(log, null,"\t"))  
+      const formattedErrors = (formatSarifOutput(log));
+      
+      console.log(`Validation result for ${file_name}:`, isValid?"valid":"invalid");
+      if (!isValid) {
+        console.error("\n"+formattedErrors);
+      }
+      if (!isValid) {
+        errors.push(`Style guide validation found errors in ${file_name}:\n ${formatSarifOutput(log)}`);
+      }
+    } catch (error) {
+      errors.push(`Error processing ${file_name}: ${error}`);
+    }
+  }
+
+  // Display all errors at the end
+  if (errors.length > 0) {
+    console.error("Validation errors found:");
+    
+    throw new Error("Style guide validation failed. "+errors.join("\n"));
+  }
+
+  expect(errors, "No style guide validation errors should be found").to.be.empty;
 });

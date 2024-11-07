@@ -6,9 +6,7 @@ help:
 
 # Most of the real work of the build is in sub-project Makefiles.
 include src/content/module.mk
-include src/examples/module.mk
 include src/validations/module.mk
-include src/web/module.mk
 
 .PHONY: help
 
@@ -18,10 +16,12 @@ init: init-repo init-validations init-content init-web  ## Initialize project de
 
 configure: init-validations
 
+lint: lint-validations
+
 init-repo:
 	git submodule update --init --recursive
 
-clean: clean-dist clean-validations clean-web  ## Clean all
+clean: clean-dist clean-validations ## Clean all
 
 clean-dist:  ## Clean non-RCS-tracked dist files
 	@echo "Cleaning dist..."

@@ -1,5 +1,9 @@
 Feature: OSCAL Document Constraints
 
+@style-guide
+Scenario Outline: Validating OSCAL constraints with metaschema constraints
+  Then I should verify that all constraints follow the style guide constraint
+  
 @constraints
 Scenario Outline: Validating OSCAL documents with metaschema constraints
   Given I have Metaschema extensions documents
@@ -25,6 +29,10 @@ Examples:
   | categorization-has-correct-system-attribute-PASS.yaml |
   | categorization-has-information-type-id-FAIL.yaml |
   | categorization-has-information-type-id-PASS.yaml |
+  | cia-impact-has-adjustment-justification-FAIL.yaml |
+  | cia-impact-has-adjustment-justification-PASS.yaml |
+  | cia-impact-has-selected-FAIL.yaml |
+  | cia-impact-has-selected-PASS.yaml |
   | cloud-service-model-FAIL.yaml |
   | cloud-service-model-PASS.yaml |
   | component-type-FAIL.yaml |
@@ -59,6 +67,14 @@ Examples:
   | has-authorization-boundary-diagram-link-rel-PASS.yaml |
   | has-authorization-boundary-diagram-link-rel-allowed-value-FAIL.yaml |
   | has-authorization-boundary-diagram-link-rel-allowed-value-PASS.yaml |
+  | has-cloud-deployment-model-FAIL.yaml |
+  | has-cloud-deployment-model-PASS.yaml |
+  | has-cloud-deployment-model-remarks-FAIL.yaml |
+  | has-cloud-deployment-model-remarks-PASS.yaml |
+  | has-cloud-service-model-FAIL.yaml |
+  | has-cloud-service-model-PASS.yaml |
+  | has-cloud-service-model-remarks-FAIL.yaml |
+  | has-cloud-service-model-remarks-PASS.yaml |
   | has-configuration-management-plan-FAIL.yaml |
   | has-configuration-management-plan-PASS.yaml |
   | has-data-flow-FAIL.yaml |
@@ -103,12 +119,28 @@ Examples:
   | has-network-architecture-diagram-link-rel-allowed-value-PASS.yaml |
   | has-rules-of-behavior-FAIL.yaml |
   | has-rules-of-behavior-PASS.yaml |
+  | has-security-impact-level-FAIL.yaml |
+  | has-security-impact-level-PASS.yaml |
+  | has-security-sensitivity-level-FAIL.yaml |
+  | has-security-sensitivity-level-PASS.yaml |
   | has-separation-of-duties-matrix-FAIL.yaml |
   | has-separation-of-duties-matrix-PASS.yaml |
   | has-system-id-FAIL.yaml |
   | has-system-id-PASS.yaml |
+  | has-system-name-short-FAIL.yaml |
+  | has-system-name-short-PASS.yaml |
   | has-user-guide-FAIL.yaml |
   | has-user-guide-PASS.yaml |
+  | import-profile-has-available-document-FAIL.yaml |
+  | import-profile-has-available-document-PASS.yaml |
+  | import-profile-resolves-to-fedramp-content-FAIL.yaml |
+  | import-profile-resolves-to-fedramp-content-PASS.yaml |
+  | information-type-has-availability-impact-FAIL.yaml |
+  | information-type-has-availability-impact-PASS.yaml |
+  | information-type-has-confidentiality-impact-FAIL.yaml |
+  | information-type-has-confidentiality-impact-PASS.yaml |
+  | information-type-has-integrity-impact-FAIL.yaml |
+  | information-type-has-integrity-impact-PASS.yaml |
   | information-type-id-FAIL.yaml |
   | information-type-id-PASS.yaml |
   | information-type-system-FAIL.yaml |
@@ -149,6 +181,20 @@ Examples:
   | security-level-PASS.yaml |
   | security-sensitivity-level-matches-security-impact-level-FAIL.yaml |
   | security-sensitivity-level-matches-security-impact-level-PASS.yaml |
+  | user-has-authorized-privilege-FAIL.yaml |
+  | user-has-authorized-privilege-PASS.yaml |
+  | user-has-privilege-level-FAIL.yaml |
+  | user-has-privilege-level-PASS.yaml |
+  | user-has-role-id-FAIL.yaml |
+  | user-has-role-id-PASS.yaml |
+  | user-has-sensitivity-level-FAIL.yaml |
+  | user-has-sensitivity-level-PASS.yaml |
+  | user-has-user-type-FAIL.yaml |
+  | user-has-user-type-PASS.yaml |
+  | user-privilege-level-FAIL.yaml |
+  | user-privilege-level-PASS.yaml |
+  | user-sensitivity-level-FAIL.yaml |
+  | user-sensitivity-level-PASS.yaml |
   | user-type-FAIL.yaml |
   | user-type-PASS.yaml |
 #END_DYNAMIC_TEST_CASES
@@ -171,14 +217,16 @@ Examples:
   | authorization-type |
   | categorization-has-correct-system-attribute |
   | categorization-has-information-type-id |
+  | cia-impact-has-adjustment-justification |
+  | cia-impact-has-selected |
   | cloud-service-model |
   | component-type |
   | control-implementation-status |
-  | data-center-US |
   | data-center-alternate |
   | data-center-count |
   | data-center-country-code |
   | data-center-primary |
+  | data-center-us |
   | deployment-model |
   | fedramp-version |
   | has-authenticator-assurance-level |
@@ -188,6 +236,10 @@ Examples:
   | has-authorization-boundary-diagram-link |
   | has-authorization-boundary-diagram-link-rel |
   | has-authorization-boundary-diagram-link-rel-allowed-value |
+  | has-cloud-deployment-model |
+  | has-cloud-deployment-model-remarks |
+  | has-cloud-service-model |
+  | has-cloud-service-model-remarks |
   | has-configuration-management-plan |
   | has-data-flow |
   | has-data-flow-description |
@@ -210,10 +262,18 @@ Examples:
   | has-network-architecture-diagram-link-rel |
   | has-network-architecture-diagram-link-rel-allowed-value |
   | has-rules-of-behavior |
+  | has-security-impact-level |
+  | has-security-sensitivity-level |
   | has-separation-of-duties-matrix |
   | has-system-id |
+  | has-system-name-short |
   | has-user-guide |
+  | import-profile-has-available-document |
+  | import-profile-resolves-to-fedramp-content |
   | information-type-800-60-v2r1 |
+  | information-type-has-availability-impact |
+  | information-type-has-confidentiality-impact |
+  | information-type-has-integrity-impact |
   | information-type-system |
   | interconnection-direction |
   | interconnection-security |
@@ -233,5 +293,12 @@ Examples:
   | scan-type |
   | security-level |
   | security-sensitivity-level-matches-security-impact-level |
+  | user-has-authorized-privilege |
+  | user-has-privilege-level |
+  | user-has-role-id |
+  | user-has-sensitivity-level |
+  | user-has-user-type |
+  | user-privilege-level |
+  | user-sensitivity-level |
   | user-type |
 #END_DYNAMIC_CONSTRAINT_IDS

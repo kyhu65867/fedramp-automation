@@ -114,11 +114,20 @@
   <system-characteristics>
     <system-id identifier-type="https://fedramp.gov">F00000001</system-id>
     <system-name>Enhanced Example System</system-name>
+    <system-name-short>System's Short Name or Acronym</system-name-short>
     <description>
       <p>This is an enhanced example system for demonstration purposes, incorporating more FedRAMP-specific elements.</p>
     </description>
-    <prop name='cloud-deployment-model' value='government-only-cloud' ns="https://fedramp.gov/ns/oscal"/>
-    <prop name='cloud-service-model' value='other' ns="https://fedramp.gov/ns/oscal"/>
+    <prop name="cloud-deployment-model" value="public-cloud">
+      <remarks>
+        <p>Remarks are required if deployment model is "hybrid-cloud" or "other". Optional otherwise.</p>
+      </remarks>
+    </prop>
+    <prop name="cloud-service-model" value="other">
+      <remarks>
+        <p>Remarks are required if service model is "other". Optional otherwise.</p>
+      </remarks>
+    </prop>
     <prop name='authorization-type' value='fedramp-agency' ns="https://fedramp.gov/ns/oscal"/>
     <prop name="identity-assurance-level" value="2"/>
     <prop name="authenticator-assurance-level" value="2"/>
@@ -135,12 +144,22 @@
         </categorization>
         <confidentiality-impact>
           <base>fips-199-high</base>
+          <selected>fips-199-high</selected>
+          <!-- adjustment-justification removed to ensure cia-impact-has-adjustment-justification passes when base and selected have the same impact level -->
         </confidentiality-impact>
         <integrity-impact>
           <base>fips-199-moderate</base>
+          <selected>fips-199-low</selected>
+          <adjustment-justification>
+            <p>Required if the base and selected values do not match.</p>
+          </adjustment-justification>
         </integrity-impact>
         <availability-impact>
-          <base>fips-199-low</base>
+          <base>fips-199-high</base>
+          <selected>fips-199-low</selected>
+          <adjustment-justification>
+            <p>Required if the base and selected values do not match.</p>
+          </adjustment-justification>
         </availability-impact>
       </information-type>
     </system-information>
@@ -192,8 +211,15 @@
     <user uuid="44444444-0000-4000-9000-000000000004">
       <title>System Administrator</title>
       <prop name="type" value="internal"/>
-      <prop name="privilege-level" value="read-write"/>
+      <prop ns="https://fedramp.gov/ns/oscal" name="privilege-level" value="read-write"/>
+      <prop ns="https://fedramp.gov/ns/oscal" name="sensitivity" value="high-risk"/>
       <role-id>system-admin</role-id>
+      <authorized-privilege>
+        <title>Admin</title>
+        <description><p>admin user</p></description>
+        <function-performed>administration</function-performed>
+      </authorized-privilege>
+
     </user>
     
     <component uuid="55555555-0000-4000-9000-000000000005" type="this-system">
