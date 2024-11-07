@@ -32,14 +32,7 @@
         </constraints>
     </context>
     <context>
-        <!-- 
-            TODO refactor like so when metaschema-java 2.0.0 and oscal-cli 2.3.0:
-
-            <metapath target="/(assessment-plan|assessment-results|plan-of-action-and-milestones|system-security-plan)/metadata"/>
-
-            For now, keep it separate from the context above.
-        -->
-        <metapath target="/system-security-plan/metadata"/>
+        <metapath target="/(assessment-plan|assessment-results|plan-of-action-and-milestones|system-security-plan)/metadata"/>
         <constraints>
             <let var="fedramp-version-oscal-part" expression="tokenize(prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal']/@value, '-')[4]"/>
             <let var="fedramp-oscal-version-subparts" expression="tokenize($fedramp-version-oscal-part, '\.')"/>
