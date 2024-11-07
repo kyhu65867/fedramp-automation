@@ -44,14 +44,9 @@
             <let var="fedramp-version-oscal-part" expression="tokenize(prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal']/@value, '-')[4]"/>
             <let var="fedramp-oscal-version-subparts" expression="tokenize($fedramp-version-oscal-part, '\.')"/>
             <let var="oscal-version-subparts" expression="tokenize(oscal-version, '\.')"/>
-            <!-- https://github.com/GSA/fedramp-automation/issues/833#issuecomment-2445516390 -->
             <let var="major-version-valid" expression="$oscal-version-subparts[1]  = $fedramp-oscal-version-subparts[1]"/>
             <let var="minor-version-valid" expression="$oscal-version-subparts[2] >= $fedramp-oscal-version-subparts[2]"/>
             <let var="patch-version-valid" expression="$oscal-version-subparts[3] >= $fedramp-oscal-version-subparts[3]"/>
-            <!-- 
-                TODO:The test is valid but there is some other issue with the evaluation of the valid Metapath in the @test.
-                Review and/or adapt when metaschema-java 2.0.0 and oscal-cli 2.3.0.
-            -->
             <expect id="oscal-version-matches-fedramp-version" target="prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal']" test="$major-version-valid and $minor-version-valid and $patch-version-valid" level="WARNING">
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://docs.oasis-open.org/sarif/sarif/v2.1.0"/>                
                 <message>A FedRAMP document SHOULD have an OSCAL version that matches the minimally required version for FedRAMP packages, {$fedramp-version-oscal-part}, not {../oscal-version}. DEBUG: {$major-version-valid} {$minor-version-valid} {$patch-version-valid}</message>
