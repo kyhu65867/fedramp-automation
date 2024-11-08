@@ -22,16 +22,22 @@
     <context>
         <metapath target="/(assessment-plan|assessment-results|plan-of-action-and-milestones|system-security-plan)/metadata"/>
         <constraints>
-            <let var="fedramp-version-oscal-part" expression="tokenize(prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal']/@value, '-')[4]"/>
-            <let var="fedramp-oscal-version-subparts" expression="tokenize($fedramp-version-oscal-part, '\.')"/>
-            <let var="oscal-version-subparts" expression="tokenize(oscal-version, '\.')"/>
-            <let var="major-version-valid" expression="$oscal-version-subparts[1]  = $fedramp-oscal-version-subparts[1]"/>
-            <let var="minor-version-valid" expression="$oscal-version-subparts[2] >= $fedramp-oscal-version-subparts[2]"/>
-            <let var="patch-version-valid" expression="$oscal-version-subparts[3] >= $fedramp-oscal-version-subparts[3]"/>
-            <expect id="oscal-version-matches-fedramp-version" target="prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal']" test="$major-version-valid and $minor-version-valid and $patch-version-valid" level="WARNING">
+                <let var="fedramp-minimal-oscal-versions" expression="map{'3.0.0-rc1': '1.1.2'}"/>
+                <let var="doc-fedramp-version" expression="prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal']/@value"/>
+                <let var="fedramp-required-minimal-version" expression="if $doc-fedramp-version in map:keys($fedramp-minimal-oscal-versions) then map:get($fedramp-minimal-oscal-versions, $doc-fedramp-version) else ()"/>
+                <let var="required-doc-oscal-version-parts" expression="tokenize($fedramp-required-minimal-version, '\.')"/>
+                <let var="doc-oscal-version-parts" expression="tokenize(oscal-version, '\.')"/>
+                <let var="major-version-valid" expression="$doc-oscal-version-parts[1]  = $required-doc-oscal-version-parts[1]">
+                    <remarks>
+                        <p>FedRAMP considers every major version as a possible source of backwards-compatible changes. FedRAMP only accepts versions with the same major version, but not newer.</p>
+                    </remarks>
+                </let>
+                <let var="minor-version-valid" expression="$doc-oscal-version-parts[2] >= $required-doc-oscal-version-parts[2]"/>
+                <let var="patch-version-valid" expression="$doc-oscal-version-parts[3] >= $required-doc-oscal-version-parts[3]"/>
+                <expect id="oscal-version-matches-fedramp-version" target="oscal-version" test="$major-version-valid and $minor-version-valid and $patch-version-valid" level="WARNING">
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://docs.oasis-open.org/sarif/sarif/v2.1.0"/>                
-                <message>A FedRAMP document SHOULD have an OSCAL version that matches the minimally required version for FedRAMP packages, {$fedramp-version-oscal-part}, not {../oscal-version}.</message>
-            </expect>           
+                <message>A FedRAMP document SHOULD have an OSCAL version that matches the minimally required version for FedRAMP packages, {if $fedramp-required-minimal-version then $fedramp-required-minimal-version else 'which is undefined due to an incorrect or missing FedRAMP Version'}, not {.}. DEBUG: {$doc-oscal-version-parts[1]}</message>
+            </expect>
         </constraints>
     </context>
     <context>
