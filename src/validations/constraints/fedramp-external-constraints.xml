@@ -741,7 +741,7 @@
     </context>
 
     <context>
-        <metapath target="//back-matter"/>
+        <metapath target="//back-matter/resource"/>
         <constraints>
             <matches id="last-accessed-is-datetime" target="prop[@ns='http://fedramp.gov/ns/oscal' and @name='last-accessed']/@value" datatype="dateTime-with-timezone" level="ERROR">
                 <formal-name>Last Accessed is Type DateTime</formal-name>
