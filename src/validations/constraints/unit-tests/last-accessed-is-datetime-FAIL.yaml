@@ -1,0 +1,9 @@
+test-case:
+  name: Negative Test for last-accessed-is-datetime
+  description: >-
+    This test case validates the behavior of constraint
+    last-accessed-is-datetime
+  content: ../content/ssp-last-accessed-is-datetime-INVALID.xml
+  expectations:
+    - constraint-id: last-accessed-is-datetime
+      result: fail
