@@ -358,6 +358,8 @@ Examples:
   | inventory-item-public-PASS.yaml |
   | inventory-item-virtual-FAIL.yaml |
   | inventory-item-virtual-PASS.yaml |
+  | last-accessed-is-datetime-FAIL.yaml |
+  | last-accessed-is-datetime-PASS.yaml |
   | leveraged-authorization-has-authorization-type-FAIL.yaml |
   | leveraged-authorization-has-authorization-type-PASS.yaml |
   | leveraged-authorization-has-impact-level-FAIL.yaml |
