@@ -117,6 +117,7 @@ Examples:
   | inventory-item-allows-authenticated-scan |
   | inventory-item-public |
   | inventory-item-virtual |
+  | last-accessed-is-datetime |
   | leveraged-authorization-has-authorization-type |
   | leveraged-authorization-has-impact-level |
   | leveraged-authorization-has-system-identifier |
