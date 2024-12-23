@@ -740,4 +740,15 @@
         </constraints>
     </context>
 
+    <context>
+        <metapath target="//back-matter"/>
+        <constraints>
+            <matches id="last-accessed-is-datetime" target="prop[@ns='https://fedramp.gov/ns/oscal' @name='last-accessed']" datatype="dateTime-with-timezone" level="ERROR">
+                <formal-name>Last Accessed is Type DateTime</formal-name>
+                <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="add-help-url-here"/>
+                <message>FedRAMP Back Matter MUST specify the last accessed date as a "full-date" per RFC3339 with the addition of a timezone.</message>
+            </matches>
+        </constraints>
+    </context>
+
 </metaschema-meta-constraints>
