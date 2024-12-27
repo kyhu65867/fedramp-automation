@@ -639,13 +639,72 @@
     <context>
         <metapath target="/(assessment-plan|assessment-results|plan-of-action-and-milestones|system-security-plan)/metadata"/>
         <constraints>
+            <let var="semver-match-pattern" expression="'(\d+).(\d+).(\d+)(?:-(\w+))?(?:\+(\w+))?'"/>
+            <let var="semver-tokenize-pattern" expression="'\.|\-|\+'"/>
+            <let var="version-registry" expression="map{ '3.0.0': '1.1.4-milestone1' }"/>
+            <let var="required-version" expression="$version-registry(prop[@ns='http://fedramp.gov/ns/oscal' and @name='fedramp-version']/@value)"/>
+            <let var="oscal-version" expression="oscal-version"/>
+            <!-- <let var="has-required-version" expression="if ($required-version) then matches($required-version, $semver-match-pattern) else false()"/>
+            <let var="required-version-parts" expression="tokenize($required-version, $semver-tokenize-pattern)"/> 
+            <let var="has-oscal-version" expression="if ($oscal-version) then matches(oscal-version, $semver-match-pattern) else false()"/>
+            <let var="oscal-version-parts" expression="tokenize($oscal-version, $semver-tokenize-pattern)"/>
+            <let var="has-valid-versions" expression="if ($has-required-version and $has-oscal-version) then true() else false()"/>
+            <let var="is-major-valid" expression="if ($has-valid-versions) then $oscal-version-parts[1] =  $required-version-parts[1] else false()"/>
+            <let var="is-minor-valid" expression="if ($has-valid-versions) then $oscal-version-parts[2] >= $required-version-parts[2] else false()"/>
+            <let var="is-patch-valid" expression="if ($has-valid-versions) then $oscal-version-parts[3] >= $required-version-parts[3] else false()"/>
+            <let var="is-prerelease-valid" expression="if (not($oscal-version-parts[4]) and not($required-version-parts[4])) then 
+            true() else false()">
+                <remarks>
+                    <p>In the <a href="https://semver.org/#spec-item-9">Semantic Versioning 2.0 Specification</a>, implementers may use labels for pre-release or build metadata.</p>
+                    <p>NIST and FedRAMP have historically used pre-release labels, such as <code>1.0.0-milestone1</code>, for pre-release versions.</p>
+                    <p>FedRAMP OSCAL Constraints should optionally check for the existence of optional pre-release metadata.</p>
+                    <p>After tokenization, the optional fourth part is the pre-release metadata.</p>
+                    <p>After tokenization, the optional fifth part is the build metadata. Per the specification, FedRAMP and other implementers must ignore this part for comparison.</p>
+                </remarks>
+            </let> -->
+            <let var="tokenize-semver"
+                expression="function($version as meta:string) as map(meta:string, meta:any-atomic-type)  {
+                    let $parts := if (matches($version, $semver-match-pattern))
+                        then tokenize($version, $semver-tokenize-pattern)
+                        else (),
+                    $result := map{ 
+                            'major':      $parts[1],
+                            'minor':      $parts[2],
+                            'patch':      $parts[3],
+                            'prerelease': $parts[4],
+                            'build':      $parts[5]
+                        }
+                    return $result
+                }"/>
+            <let var="tokenize-prerelease"
+                expression="function($prerelease as meta:string) as item()* {
+                    let $prefix := tokenize($prerelease, '1'),
+                    $increment := tokenize($prerelease, 'milestone')
+                    return ($prefix, $increment)
+                }"/>
+            <let var="is-required-semver"
+                expression="function ($oscal-version as meta:string?, $required-version as meta:string?) as item()* {
+                    let $result := false,
+                    $is-valid-oscal-version := matches($oscal-version, $semver-match-pattern),
+                    $is-valid-required-version := matches($required-version, $semver-match-pattern),
+                    $oscal-version-parts := if ($is-valid-oscal-version) then $tokenize-semver($oscal-version) else map{},
+                    $required-version-parts := if ($is-valid-required-version) then $tokenize-semver($required-version) else map{},                    
+                    $is-valid-major := if ($is-valid-oscal-version and $is-valid-required-version) then $oscal-version-parts('major') =   $required-version-parts('major') else false,
+                    $is-valid-minor := if ($is-valid-oscal-version and $is-valid-required-version) then $oscal-version-parts('minor') >=  $required-version-parts('minor') else false,
+                    $is-valid-patch := if ($is-valid-oscal-version and $is-valid-required-version) then $oscal-version-parts('patch') >=  $required-version-parts('patch') else false,
+                    $is-valid-prerelease := false
+                    return false()
+                }"/>
+            <expect id="fedramp-version-has-required-oscal-version" target="prop[@ns='http://fedramp.gov/ns/oscal' and @name='fedramp-version']/@value" test="false()">
+                <message>DEBUG: oscal-version: {$oscal-version} required version: {$required-version} | function test: {$is-required-semver($oscal-version, $required-version) ! string() } }</message>
+            </expect>
             <expect id="fedramp-version" target="." test="exists(prop[@name='fedramp-version'][@ns='https://fedramp.gov/ns/oscal'])" level="ERROR">
-                <formal-name>Fedramp Version</formal-name>
+                <formal-name>FedRAMP Version</formal-name>
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://automate.fedramp.gov/documentation/general-concepts/4-expressing-common-fedramp-template-elements-in-oscal/#fedramp-version"/>
                 <message>A FedRAMP document's metadata MUST define a valid FedRAMP version.</message>
                 <remarks>
                     <p>All documents in a digital authorization package for FedRAMP must specify the version that identifies which FedRAMP policies, guidance, and technical specifications its authors used during the creation and maintenance of the package.</p>
-                    <p>FedRAMP maintains an official list of the versions on <a href="https://github.com/GSA/fedramp-automation/releases">the fedramp-automation releases page</a>. Unless noted otherwise, a valid version is <a href="https://github.com/GSA/fedramp-automation/tags">a published tag name</a>.
+                    <p>FedRAMP maintains an official list of the versions on <a href="https://github.com/GSA/fedramp-automation/releases">the GSA/fedramp-automation releases page</a>. Unless noted otherwise, a valid version is <a href="https://github.com/GSA/fedramp-automation/tags">a published tag name</a>.
                     </p>
                 </remarks>
             </expect>
