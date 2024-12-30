@@ -1753,7 +1753,7 @@ compliance (e.g., Module in Process).</p>
         <p>FUNCTION: Describe typical component function.</p>
       </description>
       <prop name="asset-type" value="image"/>
-      <prop name="checksum" value="6c657e4a8583451384eef47e86cdd535b3589e2b857f8d956a3b8074fafc0b85"/>
+      <prop name="checksum" ns="http://fedramp.gov/ns/oscal" value="6c657e4a8583451384eef47e86cdd535b3589e2b857f8d956a3b8074fafc0b85"/>
       <prop ns="http://fedramp.gov/ns/oscal" name="scan-type" value="infrastructure"/>
       <prop name="vendor-name" value="Vendor Name"/>
       <prop name="model" value="Model Number"/>

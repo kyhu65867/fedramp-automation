@@ -10,7 +10,7 @@
       <prop name="leveraged-authorization-uuid" value="11111111-2222-4000-8000-019000000001"/>
       <prop name="asset-type" value="image"/>
       <!--No property of value checksum defined-->
-      <!--<prop name="checksum" value="6c657e4a8583451384eef47e86cdd535b3589e2b857f8d956a3b8074fafc0b85"/>-->
+      <!--<prop name="checksum" ns="http://fedramp.gov/ns/oscal" value="6c657e4a8583451384eef47e86cdd535b3589e2b857f8d956a3b8074fafc0b85"/>-->
       <prop name="implementation-point" value="internal"/>
       <prop ns="http://fedramp.gov/ns/oscal" name="information-type" class="incoming" value="C.3.5.1"/>
       <prop ns="http://fedramp.gov/ns/oscal" name="information-type" class="outgoing" value="C.3.5.8"/>
