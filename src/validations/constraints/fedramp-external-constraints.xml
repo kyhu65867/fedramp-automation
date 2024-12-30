@@ -590,6 +590,11 @@
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://automate.fedramp.gov/documentation/ssp/5-attachments/#system-inventory-approach"/>
                 <message>A FedRAMP SSP system implementation section MUST have at least two inventory items.</message>
             </expect>
+            <expect id="image-has-checksum" target="//component[@type='software' and ./prop[@name='asset-type' and @value='image']]" test="count(./prop[@name='checksum' and @ns='http://fedramp.gov/ns/oscal']) = 1" level="ERROR">
+                <formal-name>Image Has Checksum Property</formal-name>
+                <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="insert-help-url-here"/>
+                <message>In a FedRAMP SSP, a component that describes a container or operating system image MUST define a checksum property.</message>
+            </expect>
             <expect id="information-type-has-class" target="component/prop[@name='information-type' and @ns='http://fedramp.gov/ns/oscal']" test="exists(@class)" level="ERROR">
                 <formal-name>Information Type Has Class</formal-name>
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://automate.fedramp.gov/documentation/ssp/4-ssp-template-to-oscal-mapping/#leveraged-fedramp-authorized-services"/>
@@ -634,6 +639,7 @@
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://automate.fedramp.gov/documentation/ssp/4-ssp-template-to-oscal-mapping/#ports-protocols-and-services"/>
                 <message>A FedRAMP SSP's component MUST reference the existing component(s) that use it via network communication. However, component "{../@uuid}" references a nonexistent component "{@href}".</message>
             </expect>
+
         </constraints>
     </context>
 
@@ -749,6 +755,17 @@
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="https://automate.fedramp.gov/documentation/ssp/5-attachments/#attachments"/>
                 <message>A FedRAMP document SHOULD specify the last accessed date for resources where the specification publication date is unknown.  In such cases, the last accessed date MUST be be a date with an explicit timezone, per RFC-3339.</message>
             </matches>
+        </constraints>
+    </context>
+
+    <context>
+        <metapath target="//component"/>
+        <constraints>
+            <expect id="image-has-checksum" target=".[@type='software' and ./prop[@name='asset-type' and @value='image']]" test="count(./prop[@name='checksum' and @ns='http://fedramp.gov/ns/oscal']) = 1" level="ERROR">
+                <formal-name>Image Has Checksum Property</formal-name>
+                <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="insert-help-url-here"/>
+                <message>In a FedRAMP SSP, a component that describes a container or operating system image MUST define a checksum property.</message>
+            </expect>
         </constraints>
     </context>
 
