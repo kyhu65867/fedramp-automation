@@ -591,7 +591,7 @@
                 <message>A FedRAMP SSP system implementation section MUST have at least two inventory items.</message>
             </expect>
             <expect id="image-has-checksum" target="//component[@type='software' and ./prop[@name='asset-type' and @value='image']]" test="count(./prop[@name='checksum' and @ns='http://fedramp.gov/ns/oscal']) = 1" level="ERROR">
-                <formal-name>Image Has Checksum Property</formal-name>
+                <formal-name>Container Image Has Checksum Property</formal-name>
                 <prop namespace="https://docs.oasis-open.org/sarif/sarif/v2.1.0" name="help-url" value="insert-help-url-here"/>
                 <message>In a FedRAMP SSP, a component that describes a container or operating system image MUST define a checksum property.</message>
             </expect>
