@@ -1,0 +1,7 @@
+test-case:
+  name: Negative Test for image-has-checksum
+  description: This test case validates the behavior of constraint image-has-checksum
+  content: ../content/ssp-image-has-checksum-INVALID.xml
+  expectations:
+    - constraint-id: image-has-checksum
+      result: fail
