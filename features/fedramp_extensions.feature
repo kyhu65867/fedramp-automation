@@ -101,6 +101,7 @@ Examples:
   | has-system-id |
   | has-system-name-short |
   | has-user-guide |
+  | image-has-checksum |
   | implementation-status-has-remarks |
   | import-profile-has-available-document |
   | import-profile-resolves-to-fedramp-content |
