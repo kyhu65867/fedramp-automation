@@ -1747,6 +1747,28 @@ compliance (e.g., Module in Process).</p>
       </remarks>
     </component>
 
+    <component uuid="11111111-2222-4000-8000-009000309803" type="software">
+      <title>Container image</title>
+      <description>
+        <p>FUNCTION: Describe typical component function.</p>
+      </description>
+      <prop name="asset-type" value="image"/>
+      <prop name="checksum" value="6c657e4a8583451384eef47e86cdd535b3589e2b857f8d956a3b8074fafc0b85"/>
+      <prop ns="http://fedramp.gov/ns/oscal" name="scan-type" value="infrastructure"/>
+      <prop name="vendor-name" value="Vendor Name"/>
+      <prop name="model" value="Model Number"/>
+      <prop name="version" value="Version Number"/>
+      <prop name="patch-level" value="Patch Level"/>
+      <link rel="validation" href="#11111111-2222-4000-8000-009000000002"/>
+      <status state="operational"/>
+      <responsible-role role-id="admin-unix">
+        <party-uuid>11111111-2222-4000-8000-004000000010</party-uuid>
+      </responsible-role>
+      <remarks>
+        <p>COMMENTS: Provide other comments as needed.</p>
+      </remarks>
+    </component>
+
 
     <component uuid="11111111-2222-4000-8000-009000400001" type="hardware">
       <title>[SAMPLE]Product</title>
