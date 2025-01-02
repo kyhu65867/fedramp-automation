@@ -1766,7 +1766,7 @@ compliance (e.g., Module in Process).</p>
         <party-uuid>11111111-2222-4000-8000-004000000010</party-uuid>
       </responsible-role>
       <remarks>
-        <p>This example container image is for a non-commercial, community-maintained Linux distribution as a non-normative example with a currently valid checksum. See a link below to the example image metadata and technical details from its officially published location on the Docker Hub registry.</p>
+        <p>This example container image is for a non-commercial, community-maintained Linux distribution as a non-normative example with a currently valid checksum. See a link above to the example image metadata and technical details from its officially published location on the Docker Hub registry.</p>
       </remarks>
     </component>
 
